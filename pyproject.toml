@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "noxu"
+version = "0.1.0"
+description = "REST API applicaton for a database designed for noxU - 	Image recognition system for order completeness check"
+authors = ["Szymon Sobczak<259275@student.pwr.edu.pl>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+fastapi = "^0.104.1"
+sqlalchemy = "^2.0.22"
+uvicorn = "^0.23.2"
+autopep8 = "^2.0.4"
+sqlalchemy-seeder = "^0.3.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
