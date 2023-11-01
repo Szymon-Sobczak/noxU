@@ -1,0 +1,79 @@
+{
+    "users": [
+        {
+            "user_name": "Anne",
+            "email": "bwah@google.com",
+            "password": "abc123",
+            "is_admin": false,
+            "is_active": true
+        },
+        {
+            "user_name": "Tomas",
+            "email": "Tomas@google.com",
+            "password": "qaz123",
+            "is_admin": false,
+            "is_active": true
+        },
+        {
+            "user_name": "admin",
+            "email": "admin@google.com",
+            "password": "admin",
+            "is_admin": true,
+            "is_active": true
+        }
+    ],
+
+    "statuses": [
+        {
+            "description": "ok"
+        },
+        {
+            "description": "nok"
+        }
+    ],
+
+    "orders": [
+        {
+            "order_name": "A123",
+            "creation_date": "2023-11-02T00:00:00.000000Z"
+        },
+        {
+            "order_name": "C777",
+            "creation_date": "2023-11-02T00:00:00.000000Z"
+        }
+    ],
+
+    "order_content": [
+        {
+            "order_id": "1",
+            "item_id": "1",
+            "quantity": "3"
+        },
+        {
+            "order_id": "1",
+            "item_id": "2",
+            "quantity": "3"
+        },
+        {
+            "order_id": "2",
+            "item_id": "3",
+            "quantity": "10"
+        }
+    ],
+
+    "items": [
+        {
+            "name": "M3 Screw",
+            "label_number": "0"
+        },
+        {
+            "name": "Euro Screw",
+            "label_number": "1"
+        },
+        {
+            "name": "5W Resistor",
+            "label_number": "2"
+        }
+        
+    ]
+}
