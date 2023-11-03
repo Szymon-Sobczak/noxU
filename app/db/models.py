@@ -1,7 +1,6 @@
 """Database entities models"""
 
-from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
-                        Integer, String)
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -23,17 +22,15 @@ class User(Base):
 
 
 class ProductionLog(Base):
-    """Table storing data about the production process - the statuses of individual checks of elements in orders."""
+    """Table storing data about the production process
+    - the statuses of individual checks of elements in orders."""
 
     __tablename__ = "production_log"
 
     log_id = Column("log_id", Integer, primary_key=True, index=True)
-    user_id = Column("user_id", Integer,
-                     ForeignKey("users.user_id"), nullable=False)
-    order_id = Column("order_id", Integer,
-                      ForeignKey("orders.order_id"), nullable=False)
-    status_id = Column("status_id", Integer,
-                       ForeignKey("statuses.status_id"), nullable=False)
+    user_id = Column("user_id", Integer, ForeignKey("users.user_id"), nullable=False)
+    order_id = Column("order_id", Integer, ForeignKey("orders.order_id"), nullable=False)
+    status_id = Column("status_id", Integer, ForeignKey("statuses.status_id"), nullable=False)
     creation_date = Column("creation_date", DateTime, nullable=False)
     additional_info = Column("additional_info", String)
 
@@ -44,6 +41,7 @@ class ProductionLog(Base):
 
 class Status(Base):
     """Table storing data on available order statuses."""
+
     __tablename__ = "statuses"
 
     status_id = Column("status_id", Integer, primary_key=True, index=True)
@@ -54,10 +52,10 @@ class Status(Base):
 
 class Order(Base):
     """Table storing data with names defined in the order system."""
+
     __tablename__ = "orders"
 
-    order__id = Column("order_id", Integer,
-                       primary_key=True, index=True)
+    order__id = Column("order_id", Integer, primary_key=True, index=True)
     order_name = Column("order_name", String, nullable=False, unique=True)
     creation_date = Column("creation_date", DateTime)
 
@@ -67,14 +65,12 @@ class Order(Base):
 
 class OrderContent(Base):
     """Table storing data on items included in defined orders."""
+
     __tablename__ = "order_content"
 
-    order_item_id = Column("order_content_id", Integer,
-                           primary_key=True, index=True)
-    order_id = Column("order_id", Integer,
-                      ForeignKey("orders.order_id"), nullable=False)
-    item_id = Column("item_id", Integer,
-                     ForeignKey("items.item_id"), nullable=False)
+    order_item_id = Column("order_content_id", Integer, primary_key=True, index=True)
+    order_id = Column("order_id", Integer, ForeignKey("orders.order_id"), nullable=False)
+    item_id = Column("item_id", Integer, ForeignKey("items.item_id"), nullable=False)
     quantity = Column("quantity", Integer, nullable=False)
 
     order = relationship("OrderContent", back_populates="orders")
@@ -82,7 +78,8 @@ class OrderContent(Base):
 
 
 class Item(Base):
-    """A table storing data on order elements available and recognized by the artificial intelligence model."""
+    """A table storing data on order elements available
+    and recognized by the artificial intelligence model."""
 
     __tablename__ = "items"
 

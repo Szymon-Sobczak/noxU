@@ -1,19 +1,20 @@
 """NoxU database generator and seeder main entrypoint."""
 
-import json
 from datetime import datetime
+import json
 
 from sqlalchemy.exc import IntegrityError
 
 from . import models
-from .database import SessionLocal, engine
+from .database import engine, SessionLocal
 from .models import Item, Order, OrderContent, Status, User
 
 
-def initialize_table(target, connection, json, **kw):
+def initialize_table(target, connection, data):
+    """Seeds database with data from specified file."""
     tablename = str(target)
-    if tablename in json and len(json[tablename]) > 0:
-        data = json[tablename]
+    if tablename in data and len(data[tablename]) > 0:
+        data = data[tablename]
 
         # Convert datetime strings to datetime objects
         for entry in data:
@@ -21,7 +22,7 @@ def initialize_table(target, connection, json, **kw):
                 if isinstance(value, str):
                     try:
                         entry[key] = datetime.strptime(
-                            value, '%Y-%m-%dT%H:%M:%S.%fZ')
+                            value, "%Y-%m-%dT%H:%M:%S.%fZ")
                     except ValueError:
                         pass
 
@@ -32,7 +33,7 @@ if __name__ == "__main__":
     models.Base.metadata.create_all(bind=engine)
     session = SessionLocal()
 
-    with open('db/seed.json') as json_file:
+    with open("db/seed.json", encoding="utf-8") as json_file:
         data = json.load(json_file)
 
     try:
