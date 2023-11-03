@@ -1,70 +1,93 @@
 """Database entities models"""
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Float, DateTime, Date
+
+from sqlalchemy import (Boolean, Column, Date, DateTime, Float, ForeignKey,
+                        Integer, String)
 from sqlalchemy.orm import relationship
 
 from .database import Base
 
 
 class User(Base):
-    """ """
-    __tablename__ = "Users"
+    """Table storing data on users registered in the system."""
+
+    __tablename__ = "users"
 
     user_id = Column("user_id", Integer, primary_key=True, index=True)
-    user_name = Column("user_name", Integer)
-    user_email = Column("email", String)
-    password = Column("password", String)
-    acess_level = Column("access_level", String)
+    user_name = Column("user_name", Integer, nullable=False, unique=True)
+    user_email = Column("email", String, nullable=False, unique=True)
+    password = Column("password", String, nullable=False)
+    is_admin = Column("is_admin", Boolean, nullable=False)
+    is_active = Column("is_active", Boolean, nullable=False)
+
+    production_log = relationship("ProductionLog", back_populates="users")
 
 
-class AccessLevel(Base):
-    """ """
-    __tablename__ = "access_levels"
+class ProductionLog(Base):
+    """Table storing data about the production process - the statuses of individual checks of elements in orders."""
 
-    access_level_id = Column()
-    description = Column()
+    __tablename__ = "production_log"
+
+    log_id = Column("log_id", Integer, primary_key=True, index=True)
+    user_id = Column("user_id", Integer,
+                     ForeignKey("users.user_id"), nullable=False)
+    order_id = Column("order_id", Integer,
+                      ForeignKey("orders.order_id"), nullable=False)
+    status_id = Column("status_id", Integer,
+                       ForeignKey("statuses.status_id"), nullable=False)
+    creation_date = Column("creation_date", DateTime, nullable=False)
+    additional_info = Column("additional_info", String)
+
+    user = relationship("User", back_populates="production_log")
+    order = relationship("Order", back_populates="production_log")
+    status = relationship("Status", back_populates="production_log")
 
 
-class OrderLog(Base):
-    """ """
-    __tablename__ = "order_log"
+class Status(Base):
+    """Table storing data on available order statuses."""
+    __tablename__ = "statuses"
 
-    log_entry_id = Column()
-    user_id = Column()
-    order_id = Column()
-    status_id = Column()
-    date = Column()
-    additional_info = Column()
+    status_id = Column("status_id", Integer, primary_key=True, index=True)
+    description = Column("description", String)
+
+    production_log = relationship("ProductionLog", back_populates="statuses")
 
 
 class Order(Base):
-    """ """
+    """Table storing data with names defined in the order system."""
     __tablename__ = "orders"
 
     order__id = Column("order_id", Integer,
                        primary_key=True, index=True)
-    order_name = Column("order_name", String)
+    order_name = Column("order_name", String, nullable=False, unique=True)
     creation_date = Column("creation_date", DateTime)
 
+    production_log = relationship("ProductionLog", back_populates="orders")
+    order_content = relationship("OrderContent", back_populates="orders")
 
-class OderItem(Base):
-    """ """
-    __tablename__ = "order_items"
 
-    order_item_id = Column("order_item_id", Integer,
+class OrderContent(Base):
+    """Table storing data on items included in defined orders."""
+    __tablename__ = "order_content"
+
+    order_item_id = Column("order_content_id", Integer,
                            primary_key=True, index=True)
-    order_id = Column("order_id", Integer)
-    item_id = Column("item_id", Integer)
-    quantity = Column("quantity", Integer)
+    order_id = Column("order_id", Integer,
+                      ForeignKey("orders.order_id"), nullable=False)
+    item_id = Column("item_id", Integer,
+                     ForeignKey("items.item_id"), nullable=False)
+    quantity = Column("quantity", Integer, nullable=False)
+
+    order = relationship("OrderContent", back_populates="orders")
+    items = relationship("Item", back_populates="order_content")
 
 
 class Item(Base):
-    """ """
+    """A table storing data on order elements available and recognized by the artificial intelligence model."""
+
     __tablename__ = "items"
 
-    user_id = Column("item_id", Integer, primary_key=True, index=True)
-    user_name = Column("name", String)
+    item_id = Column("item_id", Integer, primary_key=True, index=True)
+    item_name = Column("name", String, nullable=False, unique=True)
+    label_number = Column("label_number", Integer, nullable=False, unique=True)
 
-
-class Status(Base):
-    """ """
-    __tablename__ = "statuses"
+    order_content = relationship("OrderContent", back_populates="items")
