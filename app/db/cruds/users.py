@@ -1,4 +1,6 @@
-import app.api.schemas.schemas as schemas
+"""CRUD functions to operate on Users table from database."""
+
+from app.api.schemas.schemas import User, UserCreate, UserUpdate
 from app.db.models import User
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
@@ -11,17 +13,12 @@ def get_user(db: Session, user_id: int):
     return db.query(User).filter(User.user_id == user_id).first()
 
 
-def get_user_by_email(db: Session, email: str):
-    """Get a single entry from the User table using email."""
-    return db.query(User).filter(User.email == email).first()
-
-
 def get_users_list(db: Session):
     """Get a list of all entries from the User table."""
     return db.query(User).all()
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+def create_user(db: Session, user: UserCreate):
     """Create a single entry from the Users table."""
     db_user = User(
         user_name=user.user_name,
@@ -35,25 +32,59 @@ def create_user(db: Session, user: schemas.UserCreate):
         db.commit()
     except IntegrityError as ex:
         resp = str(ex.orig)
-        detail = "Customer already registered"
+        detail = "User already registered."
         if "user_name" in resp:
-            detail = "Username already registered"
+            detail = "Username already registered."
         elif "user_email" in resp:
-            detail = "Email already registered"
+            detail = "Email already registered."
         raise HTTPException(
             status_code=400, detail=detail)
 
     return db_user
 
 
-def delete_customer(db: Session, user_id: int):
-    """Delete a single entry from the User table with id."""
+def delete_user(db: Session, user_id: int):
+    """Delete a single entry from the Users table with id."""
     db_user = db.query(User).filter(
         User.user_id == user_id).first()
 
     try:
         db.delete(db_user)
-        db.commit()
+        is_admin_exists = db.query(User).filter(
+            User.is_admin == True).count() == 0
+        if is_admin_exists:
+            db.rollback()
+            raise HTTPException(
+                status_code=404, detail=f"Once this user is removed, no administrator will remain.")
+        else:
+            db.commit()
     except UnmappedInstanceError:
         raise HTTPException(
-            status_code=404, detail=f"Customer with {user_id} id not found.")
+            status_code=404, detail=f"User with {user_id} id not found.")
+
+
+def update_user(db: Session, user_id: int, new_user: UserUpdate):
+    """Update a single entry from the Users table with id."""
+    db_user = db.query(User).filter(
+        User.user_id == user_id).first()
+
+    try:
+        update_data = new_user.model_dump(exclude_unset=True)
+        db.query(User).filter(User.user_id ==
+                              user_id).update(update_data)
+        db.commit()
+        db.refresh(db_user)
+    except UnmappedInstanceError:
+        raise HTTPException(
+            status_code=404, detail=f"User with {user_id} id not found.")
+    except IntegrityError as ex:
+        resp = str(ex.orig)
+        detail = "User already registered."
+        if "user_name" in resp:
+            detail = "Username already registered."
+        elif "user_email" in resp:
+            detail = "Email already registered."
+        raise HTTPException(
+            status_code=400, detail=detail)
+
+    return db_user

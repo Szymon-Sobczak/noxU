@@ -48,7 +48,7 @@ class Status(Base):
     __tablename__ = "statuses"
 
     status_id = Column("status_id", Integer, primary_key=True, index=True)
-    description = Column("description", String)
+    description = Column("description", String, unique=True)
 
     production_log = relationship("ProductionLog", back_populates="statuses")
 
@@ -63,7 +63,7 @@ class Order(Base):
     creation_date = Column("creation_date", DateTime)
 
     production_log = relationship("ProductionLog", back_populates="orders")
-    
+
     order_content = relationship("OrderContent", back_populates="order")
 
 
