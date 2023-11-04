@@ -33,7 +33,7 @@ if __name__ == "__main__":
     models.Base.metadata.create_all(bind=engine)
     session = SessionLocal()
 
-    with open("db/seed.json", encoding="utf-8") as json_file:
+    with open("app/db/seed.json", encoding="utf-8") as json_file:
         data = json.load(json_file)
 
     try:

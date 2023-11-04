@@ -1,8 +1,8 @@
 """FastAPI main entrypoint of NoxU app."""
 
 from fastapi import FastAPI
-from app.api.routers import analyse
+from app.api.routers import users
 
-if __name__ == "__main__":
-    app = FastAPI()
-    app.include_router(analyse.router)
+
+app = FastAPI()
+app.include_router(users.router)

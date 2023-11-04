@@ -28,15 +28,18 @@ class ProductionLog(Base):
     __tablename__ = "production_log"
 
     log_id = Column("log_id", Integer, primary_key=True, index=True)
-    user_id = Column("user_id", Integer, ForeignKey("users.user_id"), nullable=False)
-    order_id = Column("order_id", Integer, ForeignKey("orders.order_id"), nullable=False)
-    status_id = Column("status_id", Integer, ForeignKey("statuses.status_id"), nullable=False)
+    user_id = Column("user_id", Integer, ForeignKey(
+        "users.user_id"), nullable=False)
+    order_id = Column("order_id", Integer, ForeignKey(
+        "orders.order_id"), nullable=False)
+    status_id = Column("status_id", Integer, ForeignKey(
+        "statuses.status_id"), nullable=False)
     creation_date = Column("creation_date", DateTime, nullable=False)
     additional_info = Column("additional_info", String)
 
-    user = relationship("User", back_populates="production_log")
-    order = relationship("Order", back_populates="production_log")
-    status = relationship("Status", back_populates="production_log")
+    users = relationship("User", back_populates="production_log")
+    orders = relationship("Order", back_populates="production_log")
+    statuses = relationship("Status", back_populates="production_log")
 
 
 class Status(Base):
@@ -60,7 +63,8 @@ class Order(Base):
     creation_date = Column("creation_date", DateTime)
 
     production_log = relationship("ProductionLog", back_populates="orders")
-    order_content = relationship("OrderContent", back_populates="orders")
+    
+    order_content = relationship("OrderContent", back_populates="order")
 
 
 class OrderContent(Base):
@@ -68,12 +72,15 @@ class OrderContent(Base):
 
     __tablename__ = "order_content"
 
-    order_item_id = Column("order_content_id", Integer, primary_key=True, index=True)
-    order_id = Column("order_id", Integer, ForeignKey("orders.order_id"), nullable=False)
-    item_id = Column("item_id", Integer, ForeignKey("items.item_id"), nullable=False)
+    order_item_id = Column("order_content_id", Integer,
+                           primary_key=True, index=True)
+    order_id = Column("order_id", Integer, ForeignKey(
+        "orders.order_id"), nullable=False)
+    item_id = Column("item_id", Integer, ForeignKey(
+        "items.item_id"), nullable=False)
     quantity = Column("quantity", Integer, nullable=False)
 
-    order = relationship("OrderContent", back_populates="orders")
+    order = relationship("Order", back_populates="order_content")
     items = relationship("Item", back_populates="order_content")
 
 
