@@ -1,6 +1,6 @@
 """Database entities models"""
-
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String
+import enum
+from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Integer, String, Enum
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -42,13 +42,25 @@ class ProductionLog(Base):
     statuses = relationship("Status", back_populates="production_log")
 
 
+class BasicStatuses(enum.Enum):
+    """Contains the basic statuses that must be included 
+    in order for the program to work correctly."""
+    OK = "ok"
+    NOK = "nok"
+    NO_QR = "no_qr_code"
+    WRONG_QR = "wrong_qr_code"
+
+
 class Status(Base):
     """Table storing data on available order statuses."""
+
+    # REWRITE TO USE ENUM !!!!!!!!!!
 
     __tablename__ = "statuses"
 
     status_id = Column("status_id", Integer, primary_key=True, index=True)
-    description = Column("description", String, unique=True)
+    description = Column("description", Enum(BasicStatuses),
+                         unique=True, nullable=False)
 
     production_log = relationship("ProductionLog", back_populates="statuses")
 
@@ -58,13 +70,15 @@ class Order(Base):
 
     __tablename__ = "orders"
 
-    order__id = Column("order_id", Integer, primary_key=True, index=True)
+    order_id = Column("order_id", Integer, primary_key=True, index=True)
     order_name = Column("order_name", String, nullable=False, unique=True)
     creation_date = Column("creation_date", DateTime)
 
     production_log = relationship("ProductionLog", back_populates="orders")
 
-    order_content = relationship("OrderContent", back_populates="order")
+    order_content = relationship("OrderContent",
+                                 back_populates="order",
+                                 cascade='all, delete-orphan')
 
 
 class OrderContent(Base):
