@@ -105,7 +105,7 @@ class OrderContentUpdate(BaseModel):
 class ProductionLogBase(BaseModel):
     """Class representing an ProductionLog entry base"""
     user_id: int
-    order_id: Optional[str] = None
+    order_id: Optional[int] = None
     status: BasicStatuses
     creation_date: datetime
     additional_info: Optional[str] = None

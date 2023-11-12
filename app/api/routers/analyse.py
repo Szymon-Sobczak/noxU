@@ -10,7 +10,7 @@ from app.db.cruds.orders import get_oder_by_order_name
 from app.db.cruds.order_content import get_order_content_details
 from app.db.cruds.production_log import create_production_log
 from app.db.models import BasicStatuses
-from app.yolo_model.model_utils import read_qr_codes
+from app.yolo_model.model_utils import read_qr_codes, evaluate_order_content, handle_order_not_found, handle_wrong_qr
 from fastapi import APIRouter, Depends, HTTPException, Response, status, UploadFile
 from sqlalchemy.orm import Session
 import ultralytics
@@ -25,75 +25,50 @@ model = read_yolo_model_from_file(Path("app/yolo_model/yolo_model.pt"))
 
 
 @router.post("/detect/")
-async def detect_objects(new_image: UploadFile, user_id: str, db: Session = Depends(get_db)):
+async def detect_objects(new_image: UploadFile, user_id: int, db: Session = Depends(get_db)):
+    """ """
     file_contents = await new_image.read()
     image = Image.open(BytesIO(file_contents)).convert("RGB")
 
     qr_codes = read_qr_codes(image)
-    print(qr_codes)
+
     if len(qr_codes) != 1 or None in qr_codes:
-        # create_production_log(db, ProductionLogCreate(user_id=user_id,
-        #                                               order_id=None,
-        #                                               status=BasicStatuses.WRONG_QR,
-        #                                               creation_date=datetime.now(),
-        #                                               additional_info=None))
-        raise HTTPException(status_code=404,
-                            detail=f"No or wrong number of QR codes in the image.")
+        handle_wrong_qr(db, user_id)
 
     order_name = qr_codes[0]
-    print(order_name)
+
     db_order = get_oder_by_order_name(db, order_name)
     if db_order is None:
-        # create_production_log(db, ProductionLogCreate(user_id=user_id,
-        #                                               order_id=None,
-        #                                               status=BasicStatuses.WRONG_QR,
-        #                                               creation_date=datetime.now(),
-        #                                               additional_info=None))
-        raise HTTPException(status_code=404,
-                            detail=f"Order with name {order_name} not found")
+        handle_order_not_found(db, user_id, order_name)
 
     order_content = get_order_content_details(db, db_order.order_id)
     if order_content is None:
         raise HTTPException(status_code=404,
                             detail=f"Order content for order with {order_content} id not found")
-    # order_content_list = [{"order_name": content[0].order_name, "label_number": content[2], "item_id": content[1].item_id, "quantity": content[1].quantity}
-    #                       for content in order_content]
-    print("*"*50)
-    print(order_content)
-    print("*"*50)
-    # order_content_list = [content.__dict__
-    #                       for content in db_order]
-    # for order, order_content, label_number in db_order:
-    #     print(
-    #         f"Order: {order.order_name}, OrderContent ID: {order_content.order_item_id}, Item Label Number: {label_number}"
-    #     )
-    # print("*"*50)
-    # print(order_content_list)
-    # print("*"*50)
 
     detections = model(image, conf=0.6)
     detection_dict = json.loads(detections[0].tojson())
-    print(detection_dict)
 
-    class_counts = {}
-    for item in detection_dict:
-        class_counts[item['class']] = class_counts.get(item['class'], 0) + 1
+    detection_result = evaluate_order_content(detection_dict, order_content)
 
-    for item in detection_dict:
-        for element in order_content:
-            if item['class'] == element[0] and class_counts[item['class']] == element[1]:
-                item['status'] = 'ok'
-                break
-            else:
-                item['status'] = 'nok'
+    # THINK ABOUT BETTER HANDLING IF THE TRAY IS INTENTIONALLY EMPTY!
+    detection_status = BasicStatuses.NOK
+    if not any(item["status"] == "nok" for item in detection_dict) or len(order_content) == 0:
+        detection_status = BasicStatuses.OK
 
-    # result = json.dumps(order_content_list)
-    return detection_dict
-    b = BytesIO()
-    image.save(b, 'jpeg')
-    im_bytes = b.getvalue()
-    print(order_content_list)
-    return Response(content=im_bytes, media_type="image/jpeg")
+    create_production_log(db, ProductionLogCreate(user_id=user_id,
+                                                  order_id=db_order.order_id,
+                                                  status=detection_status,
+                                                  creation_date=datetime.now(),
+                                                  additional_info=None))
+    # HANDLE ERROR CODES FOR OK AND NOK!
+    return detection_result
+
+
+# b = BytesIO()
+# image.save(b, 'jpeg')
+# im_bytes = b.getvalue()
+# return Response(content=im_bytes, media_type="image/jpeg")
 
 
 # @router.post("/detect/")

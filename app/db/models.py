@@ -26,8 +26,8 @@ class BasicStatuses(enum.Enum):
     in order for the program to work correctly."""
     OK = "ok"
     NOK = "nok"
-    NO_QR = "no_qr_code"
-    WRONG_QR = "wrong_qr_code"
+    WRONG_ORDER = "wrong order name"
+    WRONG_QR = "wrong qr code"
 
 
 class ProductionLog(Base):
