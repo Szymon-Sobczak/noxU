@@ -2,6 +2,7 @@ from datetime import date, datetime
 from typing import List, Optional
 
 from pydantic import BaseModel
+from app.db.models import BasicStatuses
 
 
 class UserBase(BaseModel):
@@ -32,23 +33,6 @@ class UserUpdate(BaseModel):
     password: Optional[str] = None
     is_admin: Optional[bool] = None
     is_active: Optional[bool] = None
-
-
-class StatusBase(BaseModel):
-    """Class representing a status entry base"""
-    description: str
-
-
-class StatusCreate(StatusBase):
-    """Class representing a status for creating new entry"""
-
-
-class Status(StatusBase):
-    """Class representing a status for reading existing entry"""
-    status_id: int
-
-    class Config:
-        orm_mode = True
 
 
 class ItemBase(BaseModel):
@@ -121,8 +105,8 @@ class OrderContentUpdate(BaseModel):
 class ProductionLogBase(BaseModel):
     """Class representing an ProductionLog entry base"""
     user_id: int
-    order_id: int
-    status_id: int
+    order_id: Optional[str] = None
+    status: BasicStatuses
     creation_date: datetime
     additional_info: Optional[str] = None
 

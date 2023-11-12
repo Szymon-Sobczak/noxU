@@ -23,11 +23,11 @@ async def read_status(db: Session = Depends(get_db)):
 @router.get("/{order_id}", response_model=Order)
 async def read_order(order_id: int, db: Session = Depends(get_db)):
     """Route to Get data on a single Order identified by id."""
-    db_status = crud.get_oder(db, order_id=order_id)
-    if db_status is None:
+    db_order = crud.get_oder(db, order_id=order_id)
+    if db_order is None:
         raise HTTPException(
             status_code=404, detail=f"Order with id {order_id} not found")
-    return db_status
+    return db_order
 
 
 @router.delete("/{order_id}")

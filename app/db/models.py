@@ -21,6 +21,15 @@ class User(Base):
     production_log = relationship("ProductionLog", back_populates="users")
 
 
+class BasicStatuses(enum.Enum):
+    """Contains the basic statuses that must be included 
+    in order for the program to work correctly."""
+    OK = "ok"
+    NOK = "nok"
+    NO_QR = "no_qr_code"
+    WRONG_QR = "wrong_qr_code"
+
+
 class ProductionLog(Base):
     """Table storing data about the production process
     - the statuses of individual checks of elements in orders."""
@@ -31,38 +40,13 @@ class ProductionLog(Base):
     user_id = Column("user_id", Integer, ForeignKey(
         "users.user_id"), nullable=False)
     order_id = Column("order_id", Integer, ForeignKey(
-        "orders.order_id"), nullable=False)
-    status_id = Column("status_id", Integer, ForeignKey(
-        "statuses.status_id"), nullable=False)
+        "orders.order_id"))
+    status = Column("status", Enum(BasicStatuses), nullable=False)
     creation_date = Column("creation_date", DateTime, nullable=False)
     additional_info = Column("additional_info", String)
 
     users = relationship("User", back_populates="production_log")
     orders = relationship("Order", back_populates="production_log")
-    statuses = relationship("Status", back_populates="production_log")
-
-
-class BasicStatuses(enum.Enum):
-    """Contains the basic statuses that must be included 
-    in order for the program to work correctly."""
-    OK = "ok"
-    NOK = "nok"
-    NO_QR = "no_qr_code"
-    WRONG_QR = "wrong_qr_code"
-
-
-class Status(Base):
-    """Table storing data on available order statuses."""
-
-    # REWRITE TO USE ENUM !!!!!!!!!!
-
-    __tablename__ = "statuses"
-
-    status_id = Column("status_id", Integer, primary_key=True, index=True)
-    description = Column("description", Enum(BasicStatuses),
-                         unique=True, nullable=False)
-
-    production_log = relationship("ProductionLog", back_populates="statuses")
 
 
 class Order(Base):
@@ -78,7 +62,8 @@ class Order(Base):
 
     order_content = relationship("OrderContent",
                                  back_populates="order",
-                                 cascade='all, delete-orphan')
+                                 cascade='all, delete-orphan',
+                                 lazy='joined')
 
 
 class OrderContent(Base):
@@ -105,7 +90,7 @@ class Item(Base):
     __tablename__ = "items"
 
     item_id = Column("item_id", Integer, primary_key=True, index=True)
-    item_name = Column("name", String, nullable=False, unique=True)
+    item_name = Column("item_name", String, nullable=False, unique=True)
     label_number = Column("label_number", Integer, nullable=False, unique=True)
 
     order_content = relationship("OrderContent", back_populates="items")

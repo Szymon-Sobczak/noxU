@@ -22,13 +22,12 @@ def create_production_log(db: Session, production_log: ProductionLogCreate):
     """Create a single entry in the Orders table."""
     db_production_log = ProductionLog(user_id=production_log.user_id,
                                       order_id=production_log.order_id,
-                                      status_id=production_log.status_id,
+                                      status=production_log.status,
                                       creation_date=production_log.creation_date,
                                       additional_info=production_log.additional_info)
     try:
         db.add(db_production_log)
         db.commit()
-        # ADD BETTER ERROR HANDLING THAT RETURNS THE CAUSE
     except IntegrityError:
         raise HTTPException(status_code=400,
                             detail=f"New Production Log entry is not valid.")

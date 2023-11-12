@@ -1,16 +1,21 @@
 """CRUD functions to operate on Orders table from database."""
 
 from app.api.schemas.schemas import Order, OrderCreate, OrderUpdate
-from app.db.models import Order
+from app.db.models import Order, OrderContent, Item
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, aliased
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
 
 def get_oder(db: Session, order_id: int):
     """Get a single entry from the Orders table using id."""
     return db.query(Order).filter(Order.order_id == order_id).first()
+
+
+def get_oder_by_order_name(db: Session, order_name: str):
+    """Get a single entry from the Orders table using order name."""
+    return db.query(Order).filter(Order.order_name == order_name).first()
 
 
 def get_oder_list(db: Session):

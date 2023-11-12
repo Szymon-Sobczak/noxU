@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 
 from . import models
 from .database import engine, SessionLocal
-from .models import Item, Order, OrderContent, Status, User
+from .models import Item, Order, OrderContent, User
 
 
 def initialize_table(target, connection, data):
@@ -37,7 +37,7 @@ if __name__ == "__main__":
         data = json.load(json_file)
 
     try:
-        for table in [Item, Order, OrderContent, Status, User]:
+        for table in [Item, Order, OrderContent, User]:
             initialize_table(table.__table__, session, data)
     except IntegrityError:
         session.rollback()

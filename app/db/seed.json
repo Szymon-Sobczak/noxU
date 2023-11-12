@@ -23,15 +23,6 @@
         }
     ],
 
-    "statuses": [
-        {
-            "description": "ok"
-        },
-        {
-            "description": "nok"
-        }
-    ],
-
     "orders": [
         {
             "order_name": "A123",
@@ -46,13 +37,18 @@
     "order_content": [
         {
             "order_id": "1",
-            "item_id": "1",
-            "quantity": "3"
+            "item_id": "5",
+            "quantity": "2"
         },
         {
             "order_id": "1",
-            "item_id": "2",
-            "quantity": "3"
+            "item_id": "3",
+            "quantity": "1"
+        },
+        {
+            "order_id": "1",
+            "item_id": "8",
+            "quantity": "1"
         },
         {
             "order_id": "2",
@@ -63,17 +59,40 @@
 
     "items": [
         {
-            "name": "M3 Screw",
+            "item_name": "16 PIN IC",
             "label_number": "0"
         },
         {
-            "name": "Euro Screw",
+            "item_name": "2W resistor",
             "label_number": "1"
         },
         {
-            "name": "5W Resistor",
+            "item_name": "5W resistor",
             "label_number": "2"
+        },
+        {
+            "item_name": "8 PIN IC",
+            "label_number": "3"
+        },
+        {
+            "item_name": "Euro screw",
+            "label_number": "4"
+        },
+        {
+            "item_name": "Keyhole bracket",
+            "label_number": "5"
+        },
+        {
+            "item_name": "M3 screw",
+            "label_number": "6"
+        },
+        {
+            "item_name": "Transistor",
+            "label_number": "7"
+        },
+        {
+            "item_name": "Wrench",
+            "label_number": "8"
         }
-        
     ]
 }

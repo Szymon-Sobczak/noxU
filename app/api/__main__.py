@@ -1,7 +1,7 @@
 """FastAPI main entrypoint of NoxU app."""
 
 from fastapi import FastAPI
-from app.api.routers import analyse, users, statuses, items, orders, order_content, production_log
+from app.api.routers import analyse, users, items, orders, order_content, production_log, qrcodes
 from fastapi.responses import RedirectResponse
 
 app = FastAPI()
@@ -12,8 +12,8 @@ async def root():
     return RedirectResponse(url="/docs")
 
 app.include_router(analyse.router)
+app.include_router(qrcodes.router)
 app.include_router(users.router)
-app.include_router(statuses.router)
 app.include_router(items.router)
 app.include_router(orders.router)
 app.include_router(order_content.router)

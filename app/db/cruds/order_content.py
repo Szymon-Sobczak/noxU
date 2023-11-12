@@ -1,7 +1,7 @@
 """CRUD functions to operate on OrderContent table from database."""
 
 from app.api.schemas.schemas import OrderContent, OrderContentCreate, OrderContentUpdate
-from app.db.models import OrderContent
+from app.db.models import OrderContent, Item
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
@@ -25,8 +25,7 @@ def get_order_content_list_by_order_id(db: Session, order_id: str):
 
 def get_order_content_details(db: Session, order_id: str):
     """Get a details of items of OrderContent entry for specified order_id."""
-    return db.query(OrderContent.item_id,
-                    OrderContent.quantity).filter(OrderContent.order_id == order_id)
+    return db.query(Item.label_number, OrderContent.quantity).join(Item).filter(OrderContent.order_id == order_id).all()
 
 
 def create_order_content(db: Session, order_content: OrderContentCreate):
