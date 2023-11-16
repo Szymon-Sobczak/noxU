@@ -13,6 +13,11 @@ def get_user(db: Session, user_id: int):
     return db.query(User).filter(User.user_id == user_id).first()
 
 
+def get_user_by_name(db: Session, user_name: str):
+    """Get a single entry from the Users table using user name."""
+    return db.query(User).filter(User.user_name == user_name).first()
+
+
 def get_users_list(db: Session):
     """Get a list of all entries from the User table."""
     return db.query(User).all()

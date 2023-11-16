@@ -1,3 +1,4 @@
+
 from app.api.dependencies import get_db
 from app.api.schemas.schemas import User, UserCreate, UserUpdate
 import app.db.cruds.users as crud
@@ -27,6 +28,15 @@ async def read_user(db: Session = Depends(get_db)):
 async def read_user(user_id: int, db: Session = Depends(get_db)):
     """Route to Get data on a single user identified by id."""
     db_user = crud.get_user(db, user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+
+@router.get("/username/{user_name}", response_model=User)
+async def read_user(user_name: str, db: Session = Depends(get_db)):
+    """Route to Get data on a single user identified by id."""
+    db_user = crud.get_user_by_name(db, user_name=user_name)
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return db_user

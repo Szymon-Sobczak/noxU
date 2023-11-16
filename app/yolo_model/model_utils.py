@@ -1,10 +1,16 @@
 """Utils to help analyze images sent for detection"""
 
-from PIL import Image
-from qreader import QReader
-import cv2
-import numpy as np
+from datetime import datetime
 from typing import List
+
+from PIL import Image
+from app.api.schemas.schemas import ProductionLogCreate
+from app.db.models import BasicStatuses
+import cv2
+from app.db.cruds.production_log import create_production_log
+from fastapi import HTTPException
+import numpy as np
+from qreader import QReader
 
 
 def read_qr_codes(source: Image) -> List[str]:
