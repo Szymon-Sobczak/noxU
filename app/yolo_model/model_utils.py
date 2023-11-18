@@ -34,16 +34,24 @@ def evaluate_order_content(detection: dict, order_content: dict) -> dict:
         class_counts[item['class']] = class_counts.get(item['class'], 0) + 1
 
     result_detection = detection
+    detection_report = {}
 
     for item in result_detection:
         for element in order_content:
             if item['class'] == element[0] and class_counts[item['class']] == element[1]:
                 item['status'] = 'ok'
+                detection_report[item['name']] = 'Ok.'
                 break
             else:
                 item['status'] = 'nok'
+                if item['class'] != element[0] and class_counts[item['class']] == element[1]:
+                    detection_report[item['name']] = 'Wrong component.'
+                elif item['class'] == element[0] and class_counts[item['class']] > element[1]:
+                    detection_report[item['name']] = 'Too many components.'
+                elif item['class'] == element[0] and class_counts[item['class']] < element[1]:
+                    detection_report[item['name']] = 'Too few components.'
 
-    return result_detection
+    return result_detection, detection_report
 
 
 def handle_wrong_qr(db, user_id):
@@ -63,4 +71,4 @@ def handle_order_not_found(db, user_id, order_name):
                                                   creation_date=datetime.now(),
                                                   additional_info=None))
     raise HTTPException(
-        status_code=404, detail=f"Order with name {order_name} not found")
+        status_code=404, detail=f"Order with name {order_name} not found.")

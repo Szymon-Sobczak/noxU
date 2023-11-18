@@ -49,11 +49,15 @@ async def detect_objects(new_image: UploadFile, user_id: int, db: Session = Depe
     detections = model(image, conf=0.6)
     detection_dict = json.loads(detections[0].tojson())
 
-    detection_result = evaluate_order_content(detection_dict, order_content)
+    detection_result, detection_report = evaluate_order_content(detection_dict,
+                                                                order_content)
 
     # THINK ABOUT BETTER HANDLING IF THE TRAY IS INTENTIONALLY EMPTY!
     detection_status = BasicStatuses.NOK
-    if not any(item["status"] == "nok" for item in detection_dict) or len(order_content) == 0:
+    if not any(item["status"] == "nok" for item in detection_dict) and len(detection_result) != 0:
+        detection_status = BasicStatuses.OK
+
+    if len(detection_result) == 0 and len(order_content) == 0:
         detection_status = BasicStatuses.OK
 
     create_production_log(db, ProductionLogCreate(user_id=user_id,
@@ -62,49 +66,6 @@ async def detect_objects(new_image: UploadFile, user_id: int, db: Session = Depe
                                                   creation_date=datetime.now(),
                                                   additional_info=None))
     # HANDLE ERROR CODES FOR OK AND NOK!
-    return detection_result
-
-
-# b = BytesIO()
-# image.save(b, 'jpeg')
-# im_bytes = b.getvalue()
-# return Response(content=im_bytes, media_type="image/jpeg")
-
-
-# @router.post("/detect/")
-# async def detect_objects(new_image: UploadFile):
-
-#     file_contents = await new_image.read()
-#     image = Image.open(BytesIO(file_contents)).convert("RGB")
-#     detections = model(image)  # Perform object detection
-#     detection = detections[0].tojson()
-#     print(detection)
-#     # im = Image.fromarray(im_array[..., ::-1])
-#     # b = BytesIO()
-#     # im.save(b, 'jpeg')
-#     # im_bytes = b.getvalue()
-
-#     my_dict = {
-#         "name": "aaa"
-#     }
-#     x, y, x2, y2 = (1195.9180908203125, 630.4423828125,
-#                     1445.0205078125, 886.781494140625)
-
-#     draw = ImageDraw.Draw(image)
-#     font_size = int(min(x2-x, y2-y) / 5)  # Adjust the multiplier as needed
-#     font = ImageFont.load_default().font_variant(size=font_size)
-#     draw.rectangle([(x, y), (x2, y2)], outline="green", width=8)
-#     position = (x, y-font_size)
-#     # Draw the filled rectangle as the background
-#     left, top, right, bottom = draw.textbbox(
-#         position, "Transistor", font=font)
-#     draw.rectangle((left, top-5, right+5, bottom+5), fill="green")
-#     draw.text(position, "Transistor", font=font, fill="white")
-
-#     b = BytesIO()
-#     image.save(b, 'jpeg')
-#     im_bytes = b.getvalue()
-#     # im_base64 = base64.b64encode(im_bytes).decode('utf-8')
-#     # im_bytes = base64.b64decode(im_base64)
-
-#     return Response(content=im_bytes, headers=my_dict, media_type="image/jpeg")
+    analysis = {"detection_result": detection_status,
+                "detection_report": detection_report}
+    return {"analysis": analysis, "detection_result": detection_result}
