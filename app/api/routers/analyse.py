@@ -66,6 +66,7 @@ async def detect_objects(new_image: UploadFile, user_id: int, db: Session = Depe
                                                   creation_date=datetime.now(),
                                                   additional_info=None))
     # HANDLE ERROR CODES FOR OK AND NOK!
-    analysis = {"detection_result": detection_status,
+    analysis = {"order_name": order_name,
+                "detection_result": detection_status,
                 "detection_report": detection_report}
     return {"analysis": analysis, "detection_result": detection_result}
