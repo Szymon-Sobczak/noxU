@@ -95,6 +95,24 @@ class OrderContent(OrderContentBase):
         orm_mode = True
 
 
+class OrderContentWithOrderName(OrderContentBase):
+    """Class representing an OrderContent for reading existing entry"""
+    order_item_id: int
+    item_name: str
+
+    class Config:
+        orm_mode = True
+
+
+class OrderWithContent(OrderBase):
+    """Class representing an Order with its content for reading existing entry"""
+    order_id: int
+    order_content: list[OrderContentWithOrderName] = []
+
+    class Config:
+        orm_mode = True
+
+
 class OrderContentUpdate(BaseModel):
     """Class representing OrderContent for updating existing entry"""
     order_id: Optional[int] = None

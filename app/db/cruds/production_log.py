@@ -1,16 +1,39 @@
 """CRUD functions to operate on ProductionLog table from database."""
+import datetime
 
 from app.api.schemas.schemas import ProductionLog, ProductionLogCreate, ProductionLogUpdate
-from app.db.models import ProductionLog
+from app.db.models import ProductionLog, User, Order
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from sqlalchemy.orm.exc import UnmappedInstanceError
+from sqlalchemy import label
 
 
 def get_production_log(db: Session, log_id: int):
     """Get a single entry from the ProductionLog table using id."""
     return db.query(ProductionLog).filter(ProductionLog.log_id == log_id).first()
+
+
+def get_production_log_user_name_time_interval(db: Session, user_id: int, min_timestamp: datetime, max_timestamp: datetime):
+    """Get a single entry from the ProductionLog table using id."""
+    query = (db.query(ProductionLog, label('order_name', Order.order_name))
+             .join(Order)
+             .filter(ProductionLog.user_id == user_id,
+                     ProductionLog.creation_date.between(min_timestamp, max_timestamp))
+             .all())
+
+    result_list = [{
+        "user_id": production_log.user_id,
+        "order_id": production_log.order_id,
+        "creation_date": production_log.creation_date,
+        "log_id": production_log.log_id,
+        "status": production_log.status,
+        "additional_info": production_log.additional_info,
+        "order_name": order_name
+    } for production_log, order_name in query]
+
+    return result_list
 
 
 def get_production_log_list(db: Session):

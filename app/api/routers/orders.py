@@ -2,7 +2,7 @@ import app.db.cruds.orders as crud
 from app.api.dependencies import get_db
 from fastapi import APIRouter, HTTPException, Depends, Response, status
 from sqlalchemy.orm import Session
-from app.api.schemas.schemas import Order, OrderCreate, OrderUpdate
+from app.api.schemas.schemas import Order, OrderCreate, OrderUpdate, OrderWithContent
 
 router = APIRouter(prefix="/api/orders",
                    tags=["Orders"], responses={404: {"description": "Not found"}})
@@ -18,6 +18,12 @@ async def create_order(new_order: OrderCreate, db: Session = Depends(get_db)):
 async def read_status(db: Session = Depends(get_db)):
     """Route to Get a list of all entries from the Orders table."""
     return crud.get_oder_list(db)
+
+
+@router.get("/list/ordercontet")
+async def read_status(db: Session = Depends(get_db)):
+    """Route to Get a list of all entries from the Orders table."""
+    return crud.get_oder_list_ordercontet(db)
 
 
 @router.get("/{order_id}", response_model=Order)

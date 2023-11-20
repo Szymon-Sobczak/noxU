@@ -4,7 +4,7 @@ from app.api.schemas.schemas import Order, OrderCreate, OrderUpdate
 from app.db.models import Order, OrderContent, Item
 from fastapi import HTTPException
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, aliased
+from sqlalchemy.orm import Session, aliased, joinedload, load_only
 from sqlalchemy.orm.exc import UnmappedInstanceError
 
 
@@ -21,6 +21,12 @@ def get_oder_by_order_name(db: Session, order_name: str):
 def get_oder_list(db: Session):
     """Get a list of all entries from the Orders table."""
     return db.query(Order).all()
+
+
+def get_oder_list_ordercontet(db: Session):
+    """Get a list of all entries from the Orders with ordercontent table."""
+    return db.query(Order).join(OrderContent).join(Item).options(
+        joinedload(Order.order_content).joinedload(OrderContent.items)).order_by(Item.item_name).filter().all()
 
 
 def create_order(db: Session, order: OrderCreate):
