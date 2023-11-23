@@ -12,7 +12,6 @@ async def root():
     return RedirectResponse(url="/docs")
 
 app.include_router(analyse.router)
-app.include_router(qrcodes.router)
 app.include_router(users.router)
 app.include_router(items.router)
 app.include_router(orders.router)

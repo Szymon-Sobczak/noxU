@@ -2,12 +2,12 @@
 import datetime
 
 from app.api.schemas.schemas import ProductionLog, ProductionLogCreate, ProductionLogUpdate
-from app.db.models import ProductionLog, User, Order
+from app.db.models import Order, ProductionLog, User
 from fastapi import HTTPException
+from sqlalchemy import  desc, label
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import joinedload, Session
 from sqlalchemy.orm.exc import UnmappedInstanceError
-from sqlalchemy import label
 
 
 def get_production_log(db: Session, log_id: int):
@@ -21,6 +21,7 @@ def get_production_log_user_name_time_interval(db: Session, user_id: int, min_ti
              .join(Order)
              .filter(ProductionLog.user_id == user_id,
                      ProductionLog.creation_date.between(min_timestamp, max_timestamp))
+             .order_by(desc(ProductionLog.creation_date))
              .all())
 
     result_list = [{

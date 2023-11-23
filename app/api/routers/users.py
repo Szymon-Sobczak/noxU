@@ -44,12 +44,12 @@ async def read_user(user_name: str, db: Session = Depends(get_db)):
 
 @router.delete("/{user_id}")
 async def delete_user(user_id: int, db: Session = Depends(get_db)):
-    """Route to delete data on a single user identified by id"""
+    """Route to delete data on a single user identified by id."""
     crud.delete_user(db, user_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.put("/{user_id}")
 async def update_user(user_id: int, updated_user: UserUpdate, db: Session = Depends(get_db)):
-    """Route to update data on a single user identified by id"""
+    """Route to update data on a single user identified by id."""
     return crud.update_user(db, user_id, updated_user)

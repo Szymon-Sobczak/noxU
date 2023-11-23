@@ -68,13 +68,14 @@ def delete_user(db: Session, user_id: int):
             status_code=404, detail=f"User with {user_id} id not found.")
 
 
-def update_user(db: Session, user_id: int, new_user: UserUpdate):
+def update_user(db: Session, user_id: int, updated_user: UserUpdate):
     """Update a single entry from the Users table with id."""
     db_user = db.query(User).filter(
         User.user_id == user_id).first()
 
     try:
-        update_data = new_user.model_dump(exclude_unset=True)
+        update_data = updated_user.model_dump(exclude_unset=True)
+        print(update_data)
         db.query(User).filter(User.user_id ==
                               user_id).update(update_data)
         db.commit()
