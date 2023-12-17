@@ -59,12 +59,12 @@ async def detect_objects(new_image: UploadFile, user_id: int, db: Session = Depe
 
     if len(detection_result) == 0 and len(order_content) == 0:
         detection_status = BasicStatuses.OK
-
+    additional_info = json.dumps(detection_report)
     create_production_log(db, ProductionLogCreate(user_id=user_id,
                                                   order_id=db_order.order_id,
                                                   status=detection_status,
                                                   creation_date=datetime.now(),
-                                                  additional_info=None))
+                                                  additional_info=additional_info))
     # HANDLE ERROR CODES FOR OK AND NOK!
     analysis = {"order_name": order_name,
                 "detection_result": detection_status,
